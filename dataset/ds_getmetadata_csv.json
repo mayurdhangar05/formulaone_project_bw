@@ -1,0 +1,80 @@
+{
+	"name": "ds_getmetadata_csv",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_blob_source",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobStorageLocation",
+				"container": "movies"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "95",
+				"type": "String"
+			},
+			{
+				"name": "Ottawa / Gatineau Airport",
+				"type": "String"
+			},
+			{
+				"name": "Gatineau",
+				"type": "String"
+			},
+			{
+				"name": "Canada",
+				"type": "String"
+			},
+			{
+				"name": "YND",
+				"type": "String"
+			},
+			{
+				"name": "CYND",
+				"type": "String"
+			},
+			{
+				"name": "45.52170181",
+				"type": "String"
+			},
+			{
+				"name": "-75.56359863",
+				"type": "String"
+			},
+			{
+				"name": "211",
+				"type": "String"
+			},
+			{
+				"name": "-5",
+				"type": "String"
+			},
+			{
+				"name": "A",
+				"type": "String"
+			},
+			{
+				"name": "America/Toronto",
+				"type": "String"
+			},
+			{
+				"name": "airport",
+				"type": "String"
+			},
+			{
+				"name": "OurAirports",
+				"type": "String"
+			}
+		]
+	},
+	"type": "Microsoft.DataFactory/factories/datasets"
+}

@@ -1,0 +1,52 @@
+{
+	"name": "pl_delete_q2",
+	"properties": {
+		"activities": [
+			{
+				"name": "act_delete_q2",
+				"type": "Delete",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_parameterised",
+						"type": "DatasetReference",
+						"parameters": {
+							"pl_param_delete_file_name": {
+								"value": "@pipeline().parameters.pl_parame_file_name",
+								"type": "Expression"
+							}
+						}
+					},
+					"logStorageSettings": {
+						"linkedServiceName": {
+							"referenceName": "ls_blob_source",
+							"type": "LinkedServiceReference"
+						}
+					},
+					"enableLogging": true,
+					"storeSettings": {
+						"type": "AzureBlobStorageReadSettings",
+						"recursive": true,
+						"enablePartitionDiscovery": false
+					}
+				}
+			}
+		],
+		"parameters": {
+			"pl_parame_file_name": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2024-03-25T13:22:25Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
