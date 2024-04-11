@@ -56,7 +56,8 @@
 					"sink": {
 						"type": "JsonSink",
 						"storeSettings": {
-							"type": "AzureBlobFSWriteSettings"
+							"type": "AzureBlobFSWriteSettings",
+							"copyBehavior": "FlattenHierarchy"
 						},
 						"formatSettings": {
 							"type": "JsonWriteSettings"
@@ -149,10 +150,15 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@activity('act_lookup').output.value[0].MRData.SeasonTable.Seasons",
+						"type": "Expression"
+					},
 					"isSequential": false,
+					"batchCount": 3,
 					"activities": [
 						{
-							"name": "act_Copydata_",
+							"name": "act_Copydata_from_race_to_adls",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
@@ -177,7 +183,8 @@
 								"sink": {
 									"type": "JsonSink",
 									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
+										"type": "AzureBlobFSWriteSettings",
+										"copyBehavior": "PreserveHierarchy"
 									},
 									"formatSettings": {
 										"type": "JsonWriteSettings"
@@ -203,12 +210,88 @@
 									"type": "DatasetReference",
 									"parameters": {
 										"directory_path": {
-											"value": "@concat('bronze/seasons/',string(utcNow('yyyyMMdd')))",
+											"value": "@concat('bronze/race/',string(utcNow('yyyyMMdd')))",
 											"type": "Expression"
 										}
 									}
 								}
 							]
+						}
+					]
+				}
+			},
+			{
+				"name": "act_Lookup_",
+				"type": "Lookup",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "act_ForEach_seasons",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "ds_formulaone_json",
+						"type": "DatasetReference",
+						"parameters": {
+							"directory_path": {
+								"value": "@concat('bronze/race/',string(utcNow('yyyyMMdd')))",
+								"type": "Expression"
+							}
+						}
+					}
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
+				"dependsOn": [
+					{
+						"activity": "act_Lookup_",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"activities": [
+						{
+							"name": "Execute Pipeline1",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"waitOnCompletion": true
+							}
 						}
 					]
 				}
