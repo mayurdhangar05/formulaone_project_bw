@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "act_Copydata_api_to_adls",
+				"name": "act_Copydata_season_api_to_adls",
 				"description": "This activity will copy data from API to ADLS",
 				"type": "Copy",
 				"dependsOn": [],
@@ -66,7 +66,7 @@
 				"type": "Lookup",
 				"dependsOn": [
 					{
-						"activity": "act_Copydata_api_to_adls",
+						"activity": "act_Copydata_season_api_to_adls",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -108,6 +108,90 @@
 						}
 					},
 					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "act_ForEach_seasons",
+				"description": "This activity is to iterate on each seasons",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "act_lookup_read_adls_content",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('act_lookup_read_adls_content').output.value[0].MRData.SeasonTable.Seasons",
+						"type": "Expression"
+					},
+					"batchCount": 3,
+					"activities": [
+						{
+							"name": "act_Copydata_race_api_to_adls",
+							"description": "This activity will copy data from race API to ADLS",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings",
+										"copyBehavior": "MergeFiles"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_http_api",
+									"type": "DatasetReference",
+									"parameters": {
+										"relative_url": {
+											"value": "@concat(item()['season'],'.json?limit=100')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_formulaone_json",
+									"type": "DatasetReference",
+									"parameters": {
+										"directory_path": {
+											"value": "@concat('bronze/race/',string(utcNow('yyyyMMdd')))",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
 				}
 			}
 		],
