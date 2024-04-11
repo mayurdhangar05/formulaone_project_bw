@@ -3,17 +3,47 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "act_Setvariable",
-				"type": "SetVariable",
+				"name": "act_ForEach_race_data",
+				"type": "ForEach",
 				"dependsOn": [],
-				"policy": {
-					"secureOutput": false,
-					"secureInput": false
-				},
 				"userProperties": [],
 				"typeProperties": {
-					"variableName": "relative_url",
-					"value": ""
+					"activities": [
+						{
+							"name": "act_Set_var_session_id",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "season_id",
+								"value": {
+									"value": "@item().season",
+									"type": "Expression"
+								}
+							}
+						},
+						{
+							"name": "act_Set_var_round_id",
+							"type": "SetVariable",
+							"dependsOn": [],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "round_id",
+								"value": {
+									"value": "@item().round",
+									"type": "Expression"
+								}
+							}
+						}
+					]
 				}
 			}
 		],
@@ -24,6 +54,12 @@
 		},
 		"variables": {
 			"relative_url": {
+				"type": "String"
+			},
+			"season_id": {
+				"type": "String"
+			},
+			"round_id": {
 				"type": "String"
 			}
 		},
