@@ -3,37 +3,10 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "act_web_getting_season_data",
-				"description": "This activity will pull data from seasons",
-				"type": "WebActivity",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"method": "GET",
-					"url": "http://ergast.com/api/f1/seasons.json"
-				}
-			},
-			{
 				"name": "act_Copydata_api_to_adls",
 				"description": "This activity will copy data from API to ADLS",
 				"type": "Copy",
-				"dependsOn": [
-					{
-						"activity": "act_web_getting_season_data",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -88,8 +61,8 @@
 				]
 			},
 			{
-				"name": "act_lookup",
-				"description": "This activity will read the file contents",
+				"name": "act_lookup_read_adls_content",
+				"description": "This activity will read the file contents of seasons",
 				"type": "Lookup",
 				"dependsOn": [
 					{
@@ -133,167 +106,8 @@
 								"type": "Expression"
 							}
 						}
-					}
-				}
-			},
-			{
-				"name": "act_ForEach_seasons",
-				"description": "This activity will iterate over each of the season present",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "act_lookup",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"items": {
-						"value": "@activity('act_lookup').output.value[0].MRData.SeasonTable.Seasons",
-						"type": "Expression"
 					},
-					"isSequential": false,
-					"batchCount": 3,
-					"activities": [
-						{
-							"name": "act_Copydata_from_race_to_adls",
-							"type": "Copy",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "JsonSource",
-									"storeSettings": {
-										"type": "HttpReadSettings",
-										"requestMethod": "GET"
-									},
-									"formatSettings": {
-										"type": "JsonReadSettings"
-									}
-								},
-								"sink": {
-									"type": "JsonSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings",
-										"copyBehavior": "MergeFiles"
-									},
-									"formatSettings": {
-										"type": "JsonWriteSettings"
-									}
-								},
-								"enableStaging": false
-							},
-							"inputs": [
-								{
-									"referenceName": "ds_http_api",
-									"type": "DatasetReference",
-									"parameters": {
-										"relative_url": {
-											"value": "@concat(item()['seasons'],'.json?limit=100')",
-											"type": "Expression"
-										}
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "ds_formulaone_json",
-									"type": "DatasetReference",
-									"parameters": {
-										"directory_path": {
-											"value": "@concat('bronze/race/',string(utcNow('yyyyMMdd')))",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						}
-					]
-				}
-			},
-			{
-				"name": "act_Lookup_",
-				"type": "Lookup",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [
-					{
-						"activity": "act_ForEach_seasons",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "JsonSource",
-						"storeSettings": {
-							"type": "AzureBlobFSReadSettings",
-							"recursive": true,
-							"enablePartitionDiscovery": false
-						},
-						"formatSettings": {
-							"type": "JsonReadSettings"
-						}
-					},
-					"dataset": {
-						"referenceName": "ds_formulaone_json",
-						"type": "DatasetReference",
-						"parameters": {
-							"directory_path": {
-								"value": "@concat('bronze/race/',string(utcNow('yyyyMMdd')))",
-								"type": "Expression"
-							}
-						}
-					}
-				}
-			},
-			{
-				"name": "ForEach1",
-				"type": "ForEach",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
-				"dependsOn": [
-					{
-						"activity": "act_Lookup_",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"activities": [
-						{
-							"name": "Execute Pipeline1",
-							"type": "ExecutePipeline",
-							"dependsOn": [],
-							"policy": {
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"waitOnCompletion": true
-							}
-						}
-					]
+					"firstRowOnly": false
 				}
 			}
 		],
