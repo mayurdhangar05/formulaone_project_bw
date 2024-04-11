@@ -26,8 +26,6 @@
 				"name": "act_Copydata_api_to_adls",
 				"description": "This activity will copy data from API to ADLS",
 				"type": "Copy",
-				"state": "Inactive",
-				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [
 					{
 						"activity": "act_web_getting_season_data",
@@ -71,7 +69,7 @@
 						"referenceName": "ds_http_api",
 						"type": "DatasetReference",
 						"parameters": {
-							"relative_url": "seasons.json"
+							"relative_url": "seasons.json?limit=100"
 						}
 					}
 				],
@@ -114,6 +112,11 @@
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
+							"wildcardFolderPath": {
+								"value": "@concat('bronze/seasons/',string(utcNow('yyyyMMdd')))",
+								"type": "Expression"
+							},
+							"wildcardFileName": "*.json",
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
@@ -125,11 +128,89 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"directory_path": {
-								"value": "@concat('bronze/seasons/',string(utcNow('yyyyMMdd')))",
+								"value": "@concat('')",
 								"type": "Expression"
 							}
 						}
 					}
+				}
+			},
+			{
+				"name": "act_ForEach_seasons",
+				"description": "This activity will iterate over each of the season present",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "act_lookup",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "act_Copydata_",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_http_api",
+									"type": "DatasetReference",
+									"parameters": {
+										"relative_url": {
+											"value": "@concat(item()['seasons'],'.json?limit=100')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_formulaone_json",
+									"type": "DatasetReference",
+									"parameters": {
+										"directory_path": {
+											"value": "@concat('bronze/seasons/',string(utcNow('yyyyMMdd')))",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
 				}
 			}
 		],
