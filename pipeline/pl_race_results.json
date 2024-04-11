@@ -1,0 +1,32 @@
+{
+	"name": "pl_race_results",
+	"properties": {
+		"activities": [
+			{
+				"name": "act_Setvariable",
+				"type": "SetVariable",
+				"dependsOn": [],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "relative_url",
+					"value": ""
+				}
+			}
+		],
+		"parameters": {
+			"race_list": {
+				"type": "array"
+			}
+		},
+		"variables": {
+			"relative_url": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
