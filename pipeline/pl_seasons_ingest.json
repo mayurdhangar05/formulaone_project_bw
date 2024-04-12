@@ -6,6 +6,8 @@
 				"name": "act_Copydata_season_api_to_adls",
 				"description": "This activity will copy data from API to ADLS",
 				"type": "Copy",
+				"state": "Inactive",
+				"onInactiveMarkAs": "Succeeded",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -140,6 +142,8 @@
 							"name": "act_Copydata_race_api_to_adls",
 							"description": "This activity will copy data from race API to ADLS",
 							"type": "Copy",
+							"state": "Inactive",
+							"onInactiveMarkAs": "Succeeded",
 							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
@@ -263,7 +267,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('act_lookup_read_adls_content').output.value",
+						"value": "@activity('act_lookup_read_adls_content_of_race_api').output.value",
 						"type": "Expression"
 					},
 					"isSequential": false,
