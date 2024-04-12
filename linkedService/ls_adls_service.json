@@ -1,0 +1,10 @@
+{
+	"name": "ls_adls_service",
+	"properties": {
+		"annotations": [],
+		"type": "AzureBlobFS",
+		"typeProperties": {
+			"url": "https://bwformulaone.dfs.core.windows.net/"
+		}
+	}
+}
