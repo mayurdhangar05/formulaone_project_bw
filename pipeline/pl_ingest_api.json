@@ -36,28 +36,7 @@
 						}
 					},
 					"enableStaging": false
-				},
-				"inputs": [
-					{
-						"referenceName": "ds_http_api",
-						"type": "DatasetReference",
-						"parameters": {
-							"relative_url": "seasons.json?limit=100"
-						}
-					}
-				],
-				"outputs": [
-					{
-						"referenceName": "ds_formulaone_json",
-						"type": "DatasetReference",
-						"parameters": {
-							"directory_path": {
-								"value": "@concat('bronze/seasons/',string(utcNow('yyyyMMdd')))",
-								"type": "Expression"
-							}
-						}
-					}
-				]
+				}
 			},
 			{
 				"name": "act_lookup_read_adls_content",
@@ -94,16 +73,6 @@
 						},
 						"formatSettings": {
 							"type": "JsonReadSettings"
-						}
-					},
-					"dataset": {
-						"referenceName": "ds_formulaone_json",
-						"type": "DatasetReference",
-						"parameters": {
-							"directory_path": {
-								"value": "@concat('')",
-								"type": "Expression"
-							}
 						}
 					},
 					"firstRowOnly": false
@@ -165,31 +134,7 @@
 									}
 								},
 								"enableStaging": false
-							},
-							"inputs": [
-								{
-									"referenceName": "ds_http_api",
-									"type": "DatasetReference",
-									"parameters": {
-										"relative_url": {
-											"value": "@concat(item()['season'],'.json?limit=100')",
-											"type": "Expression"
-										}
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "ds_formulaone_json",
-									"type": "DatasetReference",
-									"parameters": {
-										"directory_path": {
-											"value": "@concat('bronze/race/',string(utcNow('yyyyMMdd')))",
-											"type": "Expression"
-										}
-									}
-								}
-							]
+							}
 						}
 					]
 				}
@@ -231,16 +176,6 @@
 						},
 						"formatSettings": {
 							"type": "JsonReadSettings"
-						}
-					},
-					"dataset": {
-						"referenceName": "ds_formulaone_json",
-						"type": "DatasetReference",
-						"parameters": {
-							"directory_path": {
-								"value": "@concat('')",
-								"type": "Expression"
-							}
 						}
 					},
 					"firstRowOnly": false

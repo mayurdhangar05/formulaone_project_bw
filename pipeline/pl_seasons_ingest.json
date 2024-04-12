@@ -115,6 +115,184 @@
 					},
 					"firstRowOnly": false
 				}
+			},
+			{
+				"name": "act_ForEach_seasons",
+				"description": "This activity is to iterate on each seasons",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "act_lookup_read_adls_content",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('act_lookup_read_adls_content').output.value[0].MRData.SeasonTable.Seasons",
+						"type": "Expression"
+					},
+					"batchCount": 3,
+					"activities": [
+						{
+							"name": "act_Copydata_race_api_to_adls",
+							"description": "This activity will copy data from race API to ADLS",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "JsonSource",
+									"storeSettings": {
+										"type": "HttpReadSettings",
+										"requestMethod": "GET"
+									},
+									"formatSettings": {
+										"type": "JsonReadSettings"
+									}
+								},
+								"sink": {
+									"type": "JsonSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "JsonWriteSettings"
+									}
+								},
+								"enableStaging": false
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_json",
+									"type": "DatasetReference",
+									"parameters": {
+										"relative_url": {
+											"value": "@concat(item()['season'],'.json?limit=100')",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "sink_adls_files",
+									"type": "DatasetReference",
+									"parameters": {
+										"directory_path": {
+											"value": "@concat('bronze/races/',string(utcNow('yyyyMMdd')))",
+											"type": "Expression"
+										},
+										"filename": {
+											"value": "@concat('race_',item()['season'],'.json')",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			{
+				"name": "act_lookup_read_adls_content_of_race_api",
+				"description": "This activity will read the file contents of race",
+				"type": "Lookup",
+				"dependsOn": [
+					{
+						"activity": "act_ForEach_seasons",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "JsonSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"wildcardFileName": "*.json",
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "JsonReadSettings"
+						}
+					},
+					"dataset": {
+						"referenceName": "sink_adls_files_without_filename",
+						"type": "DatasetReference",
+						"parameters": {
+							"directory_path": {
+								"value": "@concat('bronze/races/',string(utcnow('yyyyMMdd')))",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "act_ForEach_race",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "act_lookup_read_adls_content_of_race_api",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('act_lookup_read_adls_content').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"batchCount": 25,
+					"activities": [
+						{
+							"name": "act_Execute_pl",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_race_results",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true,
+								"parameters": {
+									"race_list": {
+										"value": "@item().MRData.RaceTable.Races",
+										"type": "Expression"
+									}
+								}
+							}
+						}
+					]
+				}
 			}
 		],
 		"folder": {
