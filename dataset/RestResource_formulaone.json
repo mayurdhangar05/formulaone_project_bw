@@ -1,0 +1,12 @@
+{
+	"name": "RestResource_formulaone",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_restservices",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "RestResource",
+		"schema": []
+	}
+}
