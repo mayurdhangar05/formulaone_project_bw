@@ -1,0 +1,9 @@
+{
+	"name": "bwt-azuredata-factory",
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "30ec8b86-b4f0-4ea0-b921-0175dfe40781",
+		"tenantId": "fd96c722-5247-4ebb-9db0-ab11ead57571"
+	}
+}
